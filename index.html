@@ -8,14 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="manifest" href="manifest.json">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FamilyBag">
-
     <style>
         :root {
             --bg-color: #FFF5F7;
@@ -28,7 +20,6 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 20px;
-            /* ป้องกันการเด้ง (Double tap zoom) */
             touch-action: manipulation; 
             -webkit-tap-highlight-color: transparent;
         }
@@ -93,7 +84,6 @@
             background-color: #eee;
         }
 
-        /* สำหรับหน้าจอใหญ่ (iPad/PC) ให้รูปสูงขึ้นหน่อย */
         @media (min-width: 768px) {
             .profile-img { height: 180px; }
         }
@@ -244,20 +234,20 @@
                 { text: "การบ้าน", checked: false, monday: false },
                 { text: "น้ำดื่ม", checked: false, monday: false },
                 { text: "ผลไม้", checked: false, monday: false },
-		{ text: "ข้าวเช้า", checked: false, monday: false }
+                { text: "ข้าวเช้า", checked: false, monday: false }, /* แก้ไข: เติม , */
                 { text: "แพมเพิส 1 ชิ้น", checked: false, monday: false },
                 { text: "ที่นอน", checked: false, monday: true },
                 { text: "แมส 5 ชิ้น", checked: false, monday: true },
             ],
             angtang: [
                 { text: "นม 3 กล่อง", checked: false, monday: false },
-		{ text: "ขวดนม 2 ขวด", checked: false, monday: true },
+                { text: "ขวดนม 2 ขวด", checked: false, monday: true },
                 { text: "ชุดสำรอง", checked: false, monday: false },
                 { text: "แพมเพิส 5 ชิ้น", checked: false, monday: false },
                 { text: "ผ้าเช็ดตัว", checked: false, monday: true },
                 { text: "น้ำดื่ม", checked: false, monday: false },
                 { text: "ผลไม้", checked: false, monday: false },
-		{ text: "ที่นอน", checked: false, monday: true },
+                { text: "ที่นอน", checked: false, monday: true },
                 { text: "แมส 5 ชิ้น", checked: false, monday: true },
             ],
             koi: [
@@ -267,7 +257,7 @@
                 { text: "ผลไม้", checked: false, monday: false }
             ],
             art: [
-                { text: "กาแฟ", checked: false, monday: false }
+                { text: "กาแฟ", checked: false, monday: false }, /* แก้ไข: เติม , */
                 { text: "กระเป๋า", checked: false, monday: false },
             ]
         };
