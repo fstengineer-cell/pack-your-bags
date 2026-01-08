@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Family Checklist</title>
+    
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#fff5f7">
+    <meta name="theme-color" content="#FFF5F7">
     
     <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -53,14 +55,14 @@
 
         .profile-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 คอลัมน์เท่ากัน */
+            grid-template-columns: 1fr 1fr; 
             gap: 15px;
             max-width: 500px;
             margin: 0 auto;
         }
 
         .profile-card {
-            background: white;
+            background: white; /* พื้นหลังการ์ดเป็นสีขาวอยู่แล้ว */
             border-radius: 20px;
             padding: 10px;
             text-align: center;
@@ -79,16 +81,19 @@
         .card-koi:hover { border-color: #C7CEEA; }
         .card-art:hover { border-color: #FFDAC1; }
 
-        /* --- แก้ไขรูปภาพ (Mobile Friendly) --- */
+        /* --- แก้ไขรูปภาพ --- */
         .profile-img {
-            width: 100%;           /* กว้างเต็มการ์ด */
-            height: 140px;         /* ล็อคความสูง */
-            object-fit: cover;     /* ตัดส่วนเกินออก ไม่ให้รูปเบี้ยว */
+            width: 100%;           
+            height: 140px;         
+            object-fit: cover;     
             object-position: top center; 
             border-radius: 15px;
             margin-bottom: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            background-color: #eee;
+            
+            /* แก้ไข: เปลี่ยนจาก #eee (เทา) เป็น white (ขาว) */
+            /* หากรูป png พื้นใส จะได้ไม่เห็นพื้นหลังเทา */
+            background-color: white; 
         }
 
         @media (min-width: 768px) {
@@ -241,7 +246,7 @@
                 { text: "การบ้าน", checked: false, monday: false },
                 { text: "น้ำดื่ม", checked: false, monday: false },
                 { text: "ผลไม้", checked: false, monday: false },
-                { text: "ข้าวเช้า", checked: false, monday: false }, /* แก้ไข: เติม , */
+                { text: "ข้าวเช้า", checked: false, monday: false },
                 { text: "แพมเพิส 1 ชิ้น", checked: false, monday: false },
                 { text: "ที่นอน", checked: false, monday: true },
                 { text: "แมส 5 ชิ้น", checked: false, monday: true },
@@ -264,7 +269,7 @@
                 { text: "ผลไม้", checked: false, monday: false }
             ],
             art: [
-                { text: "กาแฟ", checked: false, monday: false }, /* แก้ไข: เติม , */
+                { text: "กาแฟ", checked: false, monday: false },
                 { text: "กระเป๋า", checked: false, monday: false },
             ]
         };
@@ -276,13 +281,19 @@
             const saved = localStorage.getItem('familyChecklistDB_v3'); 
             if (saved) {
                 appData = JSON.parse(saved);
-                // Merge new keys if any
                 if(!appData.ongtong) appData.ongtong = defaultData.ongtong;
                 if(!appData.angtang) appData.angtang = defaultData.angtang;
                 if(!appData.koi) appData.koi = defaultData.koi;
                 if(!appData.art) appData.art = defaultData.art;
             } else {
                 appData = JSON.parse(JSON.stringify(defaultData));
+            }
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Error', err));
             }
         };
 
@@ -376,5 +387,4 @@
         }
     </script>
 </body>
-
 </html>
