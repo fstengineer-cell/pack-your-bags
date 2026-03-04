@@ -16,6 +16,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
         :root {
@@ -62,7 +64,7 @@
         }
 
         .profile-card {
-            background: white; /* พื้นหลังการ์ดเป็นสีขาวอยู่แล้ว */
+            background: white; 
             border-radius: 20px;
             padding: 10px;
             text-align: center;
@@ -81,7 +83,6 @@
         .card-koi:hover { border-color: #C7CEEA; }
         .card-art:hover { border-color: #FFDAC1; }
 
-        /* --- แก้ไขรูปภาพ --- */
         .profile-img {
             width: 100%;           
             height: 140px;         
@@ -90,9 +91,6 @@
             border-radius: 15px;
             margin-bottom: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            
-            /* แก้ไข: เปลี่ยนจาก #eee (เทา) เป็น white (ขาว) */
-            /* หากรูป png พื้นใส จะได้ไม่เห็นพื้นหลังเทา */
             background-color: white; 
         }
 
@@ -137,13 +135,32 @@
             padding: 12px 15px; margin-bottom: 10px;
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border: 1px solid #f0f0f0; cursor: pointer;
+            border: 1px solid #f0f0f0; 
+            /* ลบ cursor: pointer ออกจากตัวการ์ดหลัก */
         }
         .item-card.checked {
             background-color: #E8F5E9; opacity: 0.7;
         }
         .item-card.checked .item-text { text-decoration: line-through; color: #888; }
         
+        /* สไตล์สำหรับปุ่มจับลาก (Drag Handle) */
+        .drag-handle {
+            color: #ccc;
+            padding: 10px 15px 10px 0;
+            cursor: grab;
+            font-size: 1.2rem;
+            touch-action: none; /* สำคัญมาก ป้องกันไม่ให้จอมือถือเลื่อนเวลาจับลาก */
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+            color: #FF9AA2;
+        }
+        .sortable-ghost {
+            opacity: 0.3;
+            background-color: #FFE4E1;
+            border: 2px dashed #FF9AA2;
+        }
+
         .checkbox-custom {
             width: 24px; height: 24px; border-radius: 50%;
             border: 2px solid #FFB7B2; margin-right: 12px;
@@ -276,6 +293,7 @@
 
         let appData = {};
         let currentPerson = ''; 
+        let sortableInstance = null; // ตัวแปรเก็บสถานะการลาก
 
         window.onload = function() {
             const saved = localStorage.getItem('familyChecklistDB_v3'); 
@@ -301,7 +319,10 @@
             currentPerson = personKey;
             const headerHTML = `<img src="${imgFile}" class="small-avatar" onerror="this.src='https://via.placeholder.com/50'"> ${displayName}`;
             document.getElementById('current-profile-display').innerHTML = headerHTML;
+            
             renderList();
+            initSortable(); // เรียกใช้งานระบบลากวางเมื่อเปิดหน้านี้
+
             document.getElementById('home-page').classList.remove('active');
             document.getElementById('checklist-page').classList.add('active');
             window.scrollTo(0, 0);
@@ -333,14 +354,46 @@
                     monTag = `<span class="monday-tag ${alertClass}"><i class="fas fa-exclamation-circle"></i> จันทร์</span>`;
                 }
 
+                // เพิ่มไอคอน <i class="fas fa-grip-lines drag-handle"></i> เข้าไปด้านหน้า
                 li.innerHTML = `
-                    <div style="display:flex; align-items:center; width:100%;" onclick="toggleCheck(${index})">
+                    <i class="fas fa-grip-lines drag-handle"></i>
+                    <div style="display:flex; align-items:center; flex:1; cursor: pointer;" onclick="toggleCheck(${index})">
                         <div class="checkbox-custom"></div>
                         <span class="item-text" style="flex:1;">${item.text} ${monTag}</span>
                     </div>
                     <div class="trash-btn" onclick="deleteItem(${index})"><i class="fas fa-trash-alt"></i></div>
                 `;
                 listEl.appendChild(li);
+            });
+        }
+
+        // ฟังก์ชันสร้างระบบลากวาง
+        function initSortable() {
+            const listEl = document.getElementById('checklist-container');
+            
+            // ถ้าเคยสร้างไว้แล้วให้ลบทิ้งก่อนสร้างใหม่เพื่อป้องกันบั๊ก
+            if (sortableInstance) {
+                sortableInstance.destroy();
+            }
+
+            sortableInstance = new Sortable(listEl, {
+                handle: '.drag-handle', // บังคับให้ลากได้เฉพาะตอนจับที่ไอคอน Grip lines
+                animation: 150, // ความเร็วตอนสลับที่ (มิลลิวินาที)
+                ghostClass: 'sortable-ghost', // คลาส CSS ระหว่างกำลังลาก
+                onEnd: function (evt) {
+                    // เมื่อปล่อยมือ ให้สลับตำแหน่งใน Data
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    
+                    if(oldIndex === newIndex) return;
+
+                    // ย้าย item ใน Array
+                    const movedItem = appData[currentPerson].splice(oldIndex, 1)[0];
+                    appData[currentPerson].splice(newIndex, 0, movedItem);
+                    
+                    saveData();
+                    renderList(); // รีเฟรชหน้าจอเพื่ออัปเดต index ของปุ่มลบ/ปุ่มติ๊ก
+                }
             });
         }
 
